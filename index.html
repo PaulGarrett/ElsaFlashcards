@@ -519,7 +519,6 @@
             return str.replace(/([A-Z])([A-Z][a-z])|([a-z])([A-Z])/g, '$1$3 $2$4');
         }
 
-        // Initialize Homepage Grid with clean path handling
         function initHome() {
             deckGrid.innerHTML = '';
             DECKS.forEach((deck, deckIndex) => {
@@ -570,24 +569,31 @@
             }
         }
 
-        // Audio Handler supporting Woman's Voice toggle vs MP3 files
+        // Helper to speak with Australian voice preference
+        function speakAustralian(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const aussieVoice = voices.find(voice => voice.lang === 'en-AU' || voice.lang.includes('AU'));
+            if (aussieVoice) {
+                utterance.voice = aussieVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Audio Handler supporting Woman's Voice toggle (with en-AU preference) vs MP3 files
         function playSound(animalName) {
             const formattedName = parseCamelCase(animalName);
-            if (settings.womansvoice && 'speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(formattedName);
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
+            if (settings.womansvoice) {
+                speakAustralian(formattedName);
             } else {
                 const audioPath = `audio/${animalName}.mp3`;
                 const audio = new Audio(audioPath);
                 audio.play().catch(() => {
-                    // Fallback to speech if MP3 fails
-                    if ('speechSynthesis' in window) {
-                        const utterance = new SpeechSynthesisUtterance(formattedName);
-                        utterance.rate = 0.9;
-                        window.speechSynthesis.speak(utterance);
-                    }
+                    speakAustralian(formattedName);
                 });
             }
         }
@@ -655,6 +661,13 @@
         document.getElementById('toggle-womansvoice').addEventListener('change', (e) => {
             settings.womansvoice = e.target.checked;
         });
+
+        // Preload voices for browsers that load them asynchronously
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
 
         initHome();
     </script>

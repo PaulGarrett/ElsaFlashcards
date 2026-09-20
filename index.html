@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Elsa's Animal Flashcards</title>
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#fdfbf7">
+    <!-- Inline Favicon -->
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23d97736'/><text x='50%' y='55%' font-size='50' text-anchor='middle' fill='white' dominant-baseline='middle'>E</text></svg>">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #f4ecdf;
+            --text-color: #2c221e;
+            --accent-color: #d97736;
+            --border-color: #d1c2ab;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Elsa-themed botanical watermarks */
+            background-image: 
+                radial-gradient(circle, #e2ebd8 20%, transparent 20%),
+                radial-gradient(circle, #f9eac2 20%, transparent 20%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            background-color: #fdfbf7;
+        }
+
+        .screen {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- HOMEPAGE STYLES --- */
+        header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .elsa-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color);
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: #3b2f2f;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #5c4a42;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .cog-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+        .cog-btn:active {
+            transform: scale(0.9);
+        }
+        .cog-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: #3b2f2f;
+        }
+
+        .deck-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+
+        .deck-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .deck-card:active {
+            transform: scale(0.97);
+        }
+
+        .deck-card span {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #2c221e;
+            height: 2.4em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .deck-thumb {
+            width: 100%;
+            height: 110px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- FLASHCARD PLAYER STYLES --- */
+        .card-stage {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .flashcard {
+            width: 90%;
+            max-width: 380px;
+            height: 480px;
+            background-color: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: pan-y;
+        }
+
+        .card-top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .home-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+        .home-btn:active {
+            transform: scale(0.9);
+        }
+        .home-btn svg {
+            width: 30px;
+            height: 30px;
+            fill: #3b2f2f;
+        }
+
+        .card-image-container {
+            width: 100%;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border-radius: 14px;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .card-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .animal-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            min-height: 1.5em;
+            text-align: center;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: auto;
+            transition: transform 0.1s;
+        }
+        .play-btn:active {
+            transform: scale(0.9);
+        }
+        .play-btn svg {
+            width: 50px;
+            height: 50px;
+            fill: #3b2f2f;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+
+        .swipe-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #7a6659;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .swipe-hint svg {
+            width: 22px;
+            height: 22px;
+            fill: #7a6659;
+        }
+
+        /* --- SETTINGS MODAL --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            padding: 25px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #3b2f2f;
+            font-size: 1.3rem;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border-color: #b55d22;
+        }
+
+        .about-box {
+            font-size: 0.85rem;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 15px;
+            color: #4a3b32;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HOMEPAGE SCREEN -->
+    <div id="home-screen" class="screen">
+        <header>
+            <div class="title-container">
+                <img src="CoverNoTex.jpg" alt="Elsa" class="elsa-avatar" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'70\'><circle cx=\'35\' cy=\'35\' r=\'35\' fill=\'#d97736\'/><text x=\'50%\' y=\'55%\' font-size=\'28\' text-anchor=\'middle\' fill=\'white\' dominant-baseline=\'middle\'>E</text></svg>'">
+                <div>
+                    <h1>Elsa's Animal Flashcards</h1>
+                </div>
+            </div>
+            <button id="cog-btn" class="cog-btn" title="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            </button>
+        </header>
+        <div class="subtitle">Help Elsa Learn The Names of Australian Animals</div>
+
+        <div class="deck-grid" id="deck-grid">
+            <!-- Populated dynamically via JS -->
+        </div>
+    </div>
+
+    <!-- FLASHCARD PLAYER SCREEN -->
+    <div id="player-screen" class="screen hidden">
+        <div class="card-stage">
+            <div class="flashcard" id="flashcard">
+                <div class="card-top-bar">
+                    <button class="home-btn" id="home-btn" title="Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </button>
+                </div>
+                <div class="card-image-container">
+                    <img id="card-img" class="card-image" src="" alt="Animal">
+                </div>
+                <div id="card-name" class="animal-name hidden">Name</div>
+                <button class="play-btn" id="play-btn" title="Play Sound">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <div class="swipe-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 7c0-1.1-.9-2-2-2s-2 .9-2 2v7c0 .55-.45 1-1 1s-1-.45-1-1V3c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 .55-.45 1-1 1s-1-.45-1-1V5c0-1.1-.9-2-2-2S4 3.9 4 5v10c0 4.42 3.58 8 8 8s8-3.58 8-8V7z"/></svg>
+                    Swipe or tap for next card
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Settings & Developer Info</h2>
+            <div class="setting-item">
+                <label for="toggle-random">Cards in random order</label>
+                <input type="checkbox" id="toggle-random">
+            </div>
+            <div class="setting-item">
+                <label for="toggle-autoplay">Autoplay sound</label>
+                <input type="checkbox" id="toggle-autoplay">
+            </div>
+            <div class="setting-item">
+                <label for="toggle-showname">Display name on card</label>
+                <input type="checkbox" id="toggle-showname">
+            </div>
+            <div class="setting-item">
+                <label for="toggle-womansvoice">Woman's Voice (Speech)</label>
+                <input type="checkbox" id="toggle-womansvoice">
+            </div>
+
+            <div style="margin-top: 15px; font-weight: bold; font-size: 0.9rem;">About & Developer Documentation</div>
+            <div class="about-box">
+                <strong>Elsa's Animal Flashcards v1.0</strong><br>
+                Standalone browser utility for Paul & Elsa Garrett.<br><br>
+                <em>Adding New Cards/Decks:</em> Instruct Gemini with the new animal name, place the <code>.png</code> image in the category folder, and put the corresponding <code>.mp3</code> file in the <code>audio/</code> folder.
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="close-settings">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DECKS = [
+            {
+                name: "Mammals",
+                folder: "Mammals",
+                thumb: "Koala",
+                color: "#f5e6ca",
+                items: ["Bandicoot", "Platypus", "Wombat", "Wallaby", "Quoll", "GouldsBat", "Glider", "LongEaredBat", "GreyKangaroo", "Rakali", "Potoroo", "Koala", "Echidna", "Possum"]
+            },
+            {
+                name: "Forest Birds",
+                folder: "Birds",
+                thumb: "BlueWren",
+                color: "#f4cbc6",
+                items: ["Egret", "BlackSwan", "Cockatoo", "Heron", "Pelican", "CrimsonRosella", "EasternRosella", "BellBird", "Magpie", "BlueWren", "Cormorant", "Falcon", "Galah", "WillyWagtail", "Fantail", "Duck", "Kookaburra"]
+            },
+            {
+                name: "Reptiles and Amphibians",
+                folder: "Reptiles&Amphibians",
+                thumb: "LongNeckedTurtle",
+                color: "#d8e2dc",
+                items: ["WaterDragon", "Goanna", "Tadpole", "CoroborreeFrog", "GreenTreeSnake", "PythonSnake", "GrassFrog", "LongNeckedTurtle", "BlueTongueLizard", "StripedMarshFrog", "RedBelliedBlackSnake", "ShortNeckedTurtle", "GreenTreeFrog", "Skink", "BrownTreeFrog"]
+            },
+            {
+                name: "River Fish",
+                folder: "Fish",
+                thumb: "MurrayRiverRainbowFish",
+                color: "#cfe8ef",
+                items: ["SilverPerch", "AustralianBass", "EmpireGudgeon", "Smelt", "PygmyPerch", "PurpleSpottedGudgeon", "MurrayCod", "TroutCod", "RainbowTrout", "BrownTrout", "Galaxias", "MurrayRiverRainbowFish", "GoldenPerch"]
+            },
+            {
+                name: "Forest Insects and Bugs",
+                folder: "ForestInverts",
+                thumb: "BlackCricket",
+                color: "#fceade",
+                items: ["Beetle", "RedBackSpider", "OrbSpider", "Scorpion", "HuntsmanSpider", "BogongMoth", "SunMoth", "Cockroach", "PeacockSpider", "Hopper", "Bee", "BlackCricket", "Butterfly", "Grub", "StickInsect", "Cicada", "Centipede", "Caterpillar"]
+            },
+            {
+                name: "River Insects and Bugs",
+                folder: "RiverInverts",
+                thumb: "Dragonfly",
+                color: "#e2d9f3",
+                items: ["Yabby", "MayFly", "Damselfly", "CaddisFlyLarva", "MurrayCray", "DragonFlyLarva", "Dragonfly", "CaddisFly", "MayflyNymph", "DamselflyNymph", "Prawn", "Shrimp"]
+            }
+        ];
+
+        let currentDeck = null;
+        let cardIndices = [];
+        let currentIndex = 0;
+        let settings = {
+            random: false,
+            autoplay: false,
+            showname: false,
+            womansvoice: false
+        };
+
+        const homeScreen = document.getElementById('home-screen');
+        const playerScreen = document.getElementById('player-screen');
+        const deckGrid = document.getElementById('deck-grid');
+        const cogBtn = document.getElementById('cog-btn');
+        const homeBtn = document.getElementById('home-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettings = document.getElementById('close-settings');
+        
+        const cardImg = document.getElementById('card-img');
+        const cardName = document.getElementById('card-name');
+        const playBtn = document.getElementById('play-btn');
+        const flashcard = document.getElementById('flashcard');
+
+        function parseCamelCase(str) {
+            return str.replace(/([A-Z])([A-Z][a-z])|([a-z])([A-Z])/g, '$1$3 $2$4');
+        }
+
+        // Initialize Homepage Grid with clean path handling
+        function initHome() {
+            deckGrid.innerHTML = '';
+            DECKS.forEach((deck, deckIndex) => {
+                const thumbAnimal = deck.thumb || deck.items[0];
+                const thumbPath = `${deck.folder}/${thumbAnimal}.png`;
+
+                const card = document.createElement('div');
+                card.className = 'deck-card';
+                card.style.backgroundColor = deck.color;
+                card.innerHTML = `
+                    <span>${deck.name}</span>
+                    <img src="${thumbPath}" class="deck-thumb" alt="${deck.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'#eee\'/><text x=\'50%\' y=\'50%\' font-size=\'12\' text-anchor=\'middle\' fill=\'#888\' dominant-baseline=\'middle\'>${deck.name}</text></svg>'">
+                `;
+                card.addEventListener('click', () => startDeck(deckIndex));
+                deckGrid.appendChild(card);
+            });
+        }
+
+        function startDeck(deckIndex) {
+            currentDeck = DECKS[deckIndex];
+            cardIndices = Array.from({ length: currentDeck.items.length }, (_, i) => i);
+            
+            if (settings.random) {
+                cardIndices.sort(() => Math.random() - 0.5);
+            }
+            
+            currentIndex = 0;
+            homeScreen.classList.add('hidden');
+            playerScreen.classList.remove('hidden');
+            loadCard();
+        }
+
+        function loadCard() {
+            const animalName = currentDeck.items[cardIndices[currentIndex]];
+            const imgPath = `${currentDeck.folder}/${animalName}.png`;
+            
+            cardImg.src = imgPath;
+            cardName.textContent = parseCamelCase(animalName);
+            
+            if (settings.showname) {
+                cardName.classList.remove('hidden');
+            } else {
+                cardName.classList.add('hidden');
+            }
+
+            if (settings.autoplay) {
+                playSound(animalName);
+            }
+        }
+
+        // Audio Handler supporting Woman's Voice toggle vs MP3 files
+        function playSound(animalName) {
+            const formattedName = parseCamelCase(animalName);
+            if (settings.womansvoice && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(formattedName);
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                const audioPath = `audio/${animalName}.mp3`;
+                const audio = new Audio(audioPath);
+                audio.play().catch(() => {
+                    // Fallback to speech if MP3 fails
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(formattedName);
+                        utterance.rate = 0.9;
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+            }
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cardIndices.length;
+            loadCard();
+        }
+
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const animalName = currentDeck.items[cardIndices[currentIndex]];
+            playSound(animalName);
+        });
+
+        flashcard.addEventListener('click', () => {
+            nextCard();
+        });
+
+        let touchStartX = 0;
+        flashcard.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        flashcard.addEventListener('touchend', e => {
+            let touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 40) {
+                nextCard();
+            }
+        }, {passive: true});
+
+        homeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playerScreen.classList.add('hidden');
+            homeScreen.classList.remove('hidden');
+        });
+
+        let lastCogClick = 0;
+        cogBtn.addEventListener('click', () => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastCogClick;
+            if (tapLength < 600 && tapLength > 0) {
+                settingsModal.classList.remove('hidden');
+            }
+            lastCogClick = currentTime;
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        document.getElementById('toggle-random').addEventListener('change', (e) => {
+            settings.random = e.target.checked;
+        });
+        document.getElementById('toggle-autoplay').addEventListener('change', (e) => {
+            settings.autoplay = e.target.checked;
+        });
+        document.getElementById('toggle-showname').addEventListener('change', (e) => {
+            settings.showname = e.target.checked;
+            if (currentDeck) {
+                if (settings.showname) cardName.classList.remove('hidden');
+                else cardName.classList.add('hidden');
+            }
+        });
+        document.getElementById('toggle-womansvoice').addEventListener('change', (e) => {
+            settings.womansvoice = e.target.checked;
+        });
+
+        initHome();
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "Elsa's Animal Flashcards",
+  "short_name": "Elsa Flashcards",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#fdfbf7",
+  "theme_color": "#fdfbf7",
+  "icons": []
+}

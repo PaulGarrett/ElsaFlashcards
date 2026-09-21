@@ -29,15 +29,12 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            /* Botanical watermarks using custom SVGs with enhanced visibility layering */
+            /* Simplified clean botanical background using just WattleBlossom.svg with a warm dot matrix */
             background-image: 
-                url('GumLeaves.svg'),
                 url('WattleBlossom.svg'),
-                url('GumBlossom.svg'),
-                url('Mayfly.svg'),
-                radial-gradient(circle, #e8dfd1 1px, transparent 1px);
-            background-size: 140px 140px, 100px 100px, 120px 120px, 90px 90px, 40px 40px;
-            background-position: 0 0, 70px 70px, 140px 35px, 35px 105px, 0 0;
+                radial-gradient(circle, #dfd3c3 1.5px, transparent 1.5px);
+            background-size: 160px 160px, 32px 32px;
+            background-position: 0 0, 0 0;
             background-attachment: fixed;
         }
 
@@ -50,7 +47,7 @@
             box-sizing: border-box;
             padding: 20px;
             min-height: 100vh;
-            background-color: rgba(253, 251, 247, 0.88); /* Soft translucent parchment overlay */
+            background-color: rgba(253, 251, 247, 0.94); /* Soft translucent parchment overlay for readability */
         }
 
         .hidden {
@@ -439,7 +436,7 @@
 
             <div style="margin-top: 15px; font-weight: bold; font-size: 0.9rem;">About & Developer Documentation</div>
             <div class="about-box">
-                <strong>Elsa's Animal Flashcards v1.1</strong><br>
+                <strong>Elsa's Animal Flashcards v1.2</strong><br>
                 Standalone browser utility for Paul & Elsa Garrett.<br><br>
                 <em>Adding New Cards/Decks:</em> Place <code>.png</code> in category folder, <code>.mp3</code> in <code>audio/</code> folder, and add items to the deck arrays below.
             </div>

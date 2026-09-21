@@ -436,7 +436,7 @@
 
             <div style="margin-top: 15px; font-weight: bold; font-size: 0.9rem;">About & Developer Documentation</div>
             <div class="about-box">
-                <strong>Elsa's Animal Flashcards v1.2</strong><br>
+                <strong>Elsa's Animal Flashcards v1.3</strong><br>
                 Standalone browser utility for Paul & Elsa Garrett.<br><br>
                 <em>Adding New Cards/Decks:</em> Place <code>.png</code> in category folder, <code>.mp3</code> in <code>audio/</code> folder, and add items to the deck arrays below.
             </div>
@@ -574,7 +574,10 @@
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
+            
+            // Adjusted parameters for a warmer, more childlike tone:
+            utterance.rate = 0.8;  // Slower pace
+            utterance.pitch = 1.25; // Slightly higher pitch
             
             const voices = window.speechSynthesis.getVoices();
             const aussieVoice = voices.find(voice => voice.lang === 'en-AU' || voice.lang.includes('AU'));

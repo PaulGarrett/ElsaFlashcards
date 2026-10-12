@@ -436,7 +436,7 @@
 
             <div style="margin-top: 15px; font-weight: bold; font-size: 0.9rem;">About & Developer Documentation</div>
             <div class="about-box">
-                <strong>Elsa's Animal Flashcards v1.3</strong><br>
+                <strong>Elsa's Animal Flashcards v1.4</strong><br>
                 Standalone browser utility for Paul & Elsa Garrett.<br><br>
                 <em>Adding New Cards/Decks:</em> Place <code>.png</code> in category folder, <code>.mp3</code> in <code>audio/</code> folder, and add items to the deck arrays below.
             </div>
@@ -461,7 +461,7 @@
                 folder: "Birds",
                 thumb: "BlueWren",
                 color: "#f4cbc6",
-                items: ["Egret", "BlackSwan", "Cockatoo", "Heron", "Pelican", "CrimsonRosella", "EasternRosella", "BellBird", "Magpie", "BlueWren", "Cormorant", "Falcon", "Galah", "WillyWagtail", "Fantail", "Duck", "Kookaburra"]
+                items: ["Egret", "BlackSwan", "Cockatoo", "Heron", "Pelican", "CrimsonRosella", "EasternRosella", "BellBird", "Magpie", "BlueWren", "Cormorant", "Falcon", "Galah", "WillyWagtail", "Fantail", "Duck", "Kookaburra", "Currawong", "MaskedLapwing", "NoisyMiner", "GangGangCockatoo", "BrushTurkey", "BlackCockatoo", "BarnOwl", "TawnyFrogmouth", "SpottedPardalote", "WattleBird", "SilverEye", "BeeEater", "WhiteIbis", "SwampHen"]
             },
             {
                 name: "Reptiles and Amphibians",
@@ -482,7 +482,7 @@
                 folder: "ForestInverts",
                 thumb: "BlackCricket",
                 color: "#fceade",
-                items: ["Beetle", "RedBackSpider", "OrbSpider", "Scorpion", "HuntsmanSpider", "BogongMoth", "SunMoth", "Cockroach", "PeacockSpider", "Hopper", "Bee", "BlackCricket", "Butterfly", "Grub", "StickInsect", "Cicada", "Centipede", "Caterpillar", "BlueBandedBee", "Earthworm"]
+                items: ["Beetle", "RedBackSpider", "OrbSpider", "Scorpion", "HuntsmanSpider", "BogongMoth", "SunMoth", "Cockroach", "PeacockSpider", "Hopper", "Bee", "BlackCricket", "Butterfly", "Grub", "StickInsect", "Cicada", "Centipede", "Caterpillar", "BlueBandedBee", "Earthworm", "MonarchButterfly", "Lacewing", "Earwig", "BrownButterfly", "LeopardSlug", "Katydid", "ChristmasBeetle", "LadybirdBeetle", "Ant", "WolfSpider", "GardenSnail"]
             },
             {
                 name: "River Insects and Bugs",
@@ -575,9 +575,8 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             
-            // Adjusted parameters for a warmer, more childlike tone:
             utterance.rate = 0.8;  // Slower pace
-            utterance.pitch = 1.25; // Slightly higher pitch
+            utterance.pitch = 1.25; // Higher pitch
             
             const voices = window.speechSynthesis.getVoices();
             const aussieVoice = voices.find(voice => voice.lang === 'en-AU' || voice.lang.includes('AU'));
